@@ -6,10 +6,12 @@ Enforce Script uses **garbage collection** with optional **reference counting** 
 
 ## Key Rules
 
-1. **Never `delete` objects manually** - Enforce Script handles cleanup via GC
-2. **Use `ref` ONLY for member variables** - Never in function parameters
-3. **Inherit from `Managed`** to enable `ref`/`autoptr` usage
+1. **Never use `delete`** - Null the reference instead; `delete` can cause segfaults
+2. **Use `ref`/`autoptr` ONLY for member variables** - Never in function parameters, returns, or locals
+3. **Inherit from `Managed`** to enable `ref`/`autoptr` reference counting
 4. **`autoptr` auto-deletes** when the variable goes out of scope
+5. **One strong reference per object** when possible - minimize `ref` references to same object
+6. **The GC is very aggressive** - destroys function-scope instances immediately when no `ref` holds them
 
 ## Reference Types
 
@@ -175,15 +177,57 @@ class Child : Managed
 }
 ```
 
-### Mistake 4: Deleting Objects Manually
+### Mistake 4: Using `delete` Keyword
 ```c
-// WRONG - never call delete
+// WRONG - delete can segfault!
 MyObject obj = new MyObject();
 delete obj;  // Can cause crashes!
 
-// RIGHT - let GC handle it, or use autoptr for scope-based cleanup
+// RIGHT - null the reference instead, let GC handle cleanup
+MyObject obj = new MyObject();
+obj = null;  // Reference released, GC cleans up
+
+// RIGHT - use autoptr for scope-based cleanup
 autoptr MyObject obj = new MyObject();
 // obj is cleaned up when scope exits
+```
+
+### Mistake 5: Not Using `ref` on Member Variables (Premature GC)
+```c
+// WRONG - GC is aggressive, may collect the object between frames
+class MySystem
+{
+    MyData m_Data;  // Weak ref - GC can destroy MyData at any time!
+
+    void Init()
+    {
+        m_Data = new MyData();
+        // m_Data may be GC'd before next use!
+    }
+}
+
+// RIGHT - ref prevents premature collection
+class MySystem
+{
+    ref MyData m_Data;  // Strong ref - GC won't collect while MySystem exists
+
+    void Init()
+    {
+        m_Data = new MyData();
+        // m_Data is safe as long as MySystem is alive
+    }
+}
+```
+
+### Mistake 6: Multiple Strong References to Same Object
+```c
+// AVOID - creates confusing ownership
+class SystemA { ref MyData m_Data; }
+class SystemB { ref MyData m_Data; }  // Two owners = unclear lifecycle
+
+// BETTER - one strong owner, others use weak references
+class SystemA { ref MyData m_Data; }   // Owner
+class SystemB { MyData m_DataRef; }    // Observer (weak ref)
 ```
 
 ## Entity Lifecycle
@@ -218,3 +262,7 @@ item.SetLifetimeMax(14400);      // 4 hours max
 // Items in player inventory are automatically persistent
 // Items on ground follow CE lifetime rules
 ```
+
+## Credits
+
+Memory management patterns referenced from [TrueDolphin's EnScript Style Guide](https://github.com/TrueDolphin/references/wiki/EnScript-(Enforce-Script)-Style-Guide).

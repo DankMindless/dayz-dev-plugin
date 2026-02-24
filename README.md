@@ -152,7 +152,9 @@ MIT License - Feel free to use and modify.
 ## Credits
 
 - Bohemia Interactive - DayZ, Enforce Script, official documentation
+- TrueDolphin - [EnScript Style Guide](https://github.com/TrueDolphin/references/wiki/EnScript-(Enforce-Script)-Style-Guide) - Naming conventions, memory management patterns, common pitfalls
 - Arkensor - Community Framework
 - salutesh - DayZ Expansion Scripts
 - DayZ modding community - DayZ Explorer, DayZ Scripts, community wikis
+- DZconfig.com - Server configuration wiki
 - FiveM Dev Plugin (melihbozkurt10) - Architectural inspiration

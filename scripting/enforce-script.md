@@ -17,6 +17,7 @@
 ```c
 // Dynamic array
 array<string> names = new array<string>;
+array<string> shorthand = {};              // Shorthand (preferred)
 names.Insert("item");
 names.Count();      // size
 names.Get(0);       // access
@@ -78,6 +79,8 @@ if ((flags & FLAG) == FLAG)
 if (condition) { } else if (other) { } else { }
 
 // Switch
+// WARNING: Compiler requires explicit return even with default case
+// Move final return OUTSIDE switch as workaround
 switch (value)
 {
     case 1: /* ... */ break;
@@ -98,6 +101,22 @@ foreach (string item : myArray) { }
 // RIGHT:  auto list = GetSomething(); foreach (auto x : list)
 ```
 
+## Naming Conventions
+
+| Element | Convention | Example |
+|---------|-----------|---------|
+| Classes | PascalCase, mod prefix recommended | `ExpansionGarageSettings`, `PlayerBase` |
+| Methods | PascalCase | `SetDefaultLootingBehaviour()` |
+| Member vars | `m_` prefix + PascalCase | `m_IsLoaded`, `m_CustomData` |
+| Static vars | `s_` prefix + PascalCase | `s_Expansion_DangerousAreas` |
+| Local vars | camelCase | `bitmask`, `lootingBehavior` |
+| Parameters | camelCase | `void Log(string msg)` |
+| Constants | `const` keyword | `const float MY_VALUE = 1.0;` |
+| Enums | PascalCase or ALL_CAPS (be consistent) | `VALUE_A`, `MyEnumValue` |
+| Preprocessor | UPPERCASE | `#define EXPANSION_MARKER_VIS_WORLD` |
+
+**Modded classes:** Always prefix your member variables with your mod name to avoid conflicts with other mods (e.g., `m_MyMod_CustomValue` instead of `m_CustomValue`).
+
 ## Classes & Inheritance
 ```c
 class MyClass extends ParentClass
@@ -106,6 +125,10 @@ class MyClass extends ParentClass
     private int m_Value;
     protected string m_Name;
     float m_PublicFloat;  // public by default
+
+    // Non-serialized attribute (excluded from serialization)
+    [NonSerialized()]
+    bool m_IsLoaded;
 
     // Constructor
     void MyClass()
@@ -119,8 +142,8 @@ class MyClass extends ParentClass
         // cleanup
     }
 
-    // Methods
-    void SetValue(int val) { m_Value = val; }
+    // Methods - use override keyword when overriding
+    override void SetValue(int val) { m_Value = val; }
     int GetValue() { return m_Value; }
 
     // Static methods
@@ -129,15 +152,24 @@ class MyClass extends ParentClass
 ```
 
 ## Modded Classes (DayZ Injection Pattern)
+
+**CRITICAL:** NEVER add `: ParentClass` inheritance to modded classes. The modded class already inherits from the original - adding inheritance is silently ignored and causes confusion.
+
 ```c
+// WRONG - never add inheritance to modded class!
+modded class PlayerBase : ManBase  // BAD! `: ManBase` is ignored
+{
+}
+
+// RIGHT - modded class inherits automatically
 modded class PlayerBase
 {
-    private int m_CustomData;
+    private int m_MyMod_CustomData;  // Prefix with mod name!
 
     override void Init()
     {
         super.Init();  // ALWAYS call super!
-        m_CustomData = 0;
+        m_MyMod_CustomData = 0;
     }
 
     override void SetActions(out TInputActionMap InputActionMap)
@@ -192,8 +224,30 @@ if (entity.IsInherited(PlayerBase))
 }
 
 // Get type name
-string typeName = entity.ClassName();  // "PlayerBase"
+string typeName = entity.ClassName();  // Script class name "PlayerBase"
+string configType = entity.GetType();  // Config class name (for entities, use this!)
 typename type = entity.Type();
+
+// NOTE: For entities, GetType() returns the config class name.
+// ClassName() returns the script class name. These can differ.
+```
+
+## Known Quirks
+
+```c
+// BUG: 1 < int.MIN returns TRUE in Enforce Script!
+// Be careful with int boundary comparisons
+int val = int.MIN;
+if (1 < val)  // This is TRUE, which is wrong!
+
+// Compiler error line numbers can be misleading when:
+// - A class is undefined or has a name conflict
+// - Error may actually be in the PREVIOUS file in the compile order
+// Check the file BEFORE the reported location
+
+// Complex array assignments can segfault - use intermediate variables
+// RISKY: someArray[GetIndex()] = ComputeValue();
+// SAFER: int idx = GetIndex(); int val = ComputeValue(); someArray[idx] = val;
 ```
 
 ## String Methods
@@ -236,6 +290,9 @@ void GetValues(out int x, out int y) { x = 1; y = 2; }
 // Default parameter
 void Bar(int x, int y = 0, string s = "") { }
 
+// notnull - guarantees parameter is never null (caller checked)
+void Process(notnull MyClass data) { /* data is guaranteed non-null */ }
+
 // WARNING: ref in params is WRONG - ref is for member variables only!
 // WRONG: void Bad(ref int x)
 // RIGHT: void Good(out int x)
@@ -249,3 +306,39 @@ GetPlayer()         // Man - local player (client only)
 GetRPCManager()     // CF RPCManager (requires Community Framework)
 g_Game              // Global game reference (faster than GetGame() in 1.28+)
 ```
+
+## Performance Notes
+
+```c
+// AVOID: GetObjectsAtPosition / GetObjectsAtPosition3D - very expensive
+// USE: Static arrays, triggers, or GetScene() instead
+
+// AVOID: g_Game.SurfaceIsPond() and g_Game.SurfaceIsSea() - remarkably slow
+// USE: g_Game.GetWaterDepth(position) <= 0 for water checks
+
+// Proto methods have call overhead; script methods are faster for simple operations
+// Use proto methods only when their engine-side functionality is needed
+```
+
+## Config Defines (1.26+)
+
+Since DayZ 1.26, you can define preprocessor symbols in `config.cpp`:
+```cpp
+class CfgPatches
+{
+    class MyMod
+    {
+        // These become available as #ifdef symbols in scripts
+        defines[] = {"MYMOD_ENABLED", "MYMOD_VERSION_2"};
+    };
+};
+```
+```c
+#ifdef MYMOD_ENABLED
+    // Code only compiled when MyMod is loaded
+#endif
+```
+
+## Credits
+
+Style conventions referenced from [TrueDolphin's EnScript Style Guide](https://github.com/TrueDolphin/references/wiki/EnScript-(Enforce-Script)-Style-Guide).

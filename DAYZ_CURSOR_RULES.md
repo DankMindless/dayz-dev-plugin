@@ -19,12 +19,15 @@ DayZ uses **Enforce Script**, a C-like language. Key differences from C/C#/C++:
 - Use C# syntax (`player.GetComponent<>()`, `using`, `namespace`)
 - Use C++ syntax (`std::`, `template<>`, `nullptr`)
 - Invent class names or methods that don't exist
-- Use `ref` in function parameters
+- Use `ref` in function parameters, returns, or local variables
+- Add `: ParentClass` inheritance to `modded class` (already inherits)
+- Use `delete` keyword (null the reference instead; `delete` can segfault)
 - Trust `GetGame().IsClient()` during init (returns FALSE)
 - Skip null checks on `Cast<>`, `GetInventory()`, `GetIdentity()`
 - Leave empty `#ifdef`/`#endif` blocks (causes segfaults)
 - Write files outside `$saves:` or `$profile:` directories
 - Create methods with more than 16 parameters
+- Compare against `int.MIN` (`1 < int.MIN` returns TRUE - known bug)
 
 ### ALWAYS DO
 - Use `!GetGame().IsDedicatedServer()` for client checks during init

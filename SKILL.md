@@ -383,13 +383,18 @@ MyMod/
 | `GetGame().IsClient()` during init | `!GetGame().IsDedicatedServer()` |
 | `foreach (auto x : GetSomething())` | `auto list = GetSomething(); foreach (auto x : list)` |
 | `if (flags & FLAG == FLAG)` | `if ((flags & FLAG) == FLAG)` |
-| `ref` in function parameters | `ref` only for class member variables |
+| `ref` in function parameters/returns/locals | `ref`/`autoptr` only for class member variables |
+| Add `: ParentClass` to `modded class` | `modded class` already inherits - never add inheritance |
+| `delete obj;` | `obj = null;` (let GC handle cleanup) |
 | Trust client data in RPCs | Always validate server-side |
 | `GetGame()` in hot paths | Use `g_Game` global (1.28+ optimization) |
+| `SurfaceIsPond()` / `SurfaceIsSea()` | `g_Game.GetWaterDepth(pos) <= 0` (much faster) |
+| `GetObjectsAtPosition()` frequently | Use static arrays, triggers, or GetScene() |
 | Empty `#ifdef` / `#endif` blocks | Always have content or remove entirely |
 | Hardcode framework dependencies | Detect at runtime via config.cpp |
 | Skip null checks on Cast<> | Always check before using result |
 | Write files outside `$saves:`/`$profile:` | FileIO only works in those directories |
+| Unqualified member names in modded classes | Prefix with mod name: `m_MyMod_VarName` |
 
 ---
 

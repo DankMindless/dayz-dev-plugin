@@ -1,0 +1,49 @@
+{
+  "name": "claude-dayz-dev",
+  "version": "1.0.0",
+  "description": "Claude Code plugin for DayZ mod development - Enforce Script, Community Framework, and Expansion with dynamic documentation fetching",
+  "keywords": [
+    "claude-code",
+    "claude-code-plugin",
+    "dayz",
+    "enforce-script",
+    "modding",
+    "bohemia-interactive",
+    "community-framework",
+    "expansion",
+    "gamedev",
+    "survival"
+  ],
+  "author": {
+    "name": "Chaos",
+    "url": "https://github.com/chaos"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/chaos/dayz-dev-plugin.git"
+  },
+  "homepage": "https://github.com/chaos/dayz-dev-plugin#readme",
+  "bugs": {
+    "url": "https://github.com/chaos/dayz-dev-plugin/issues"
+  },
+  "files": [
+    ".claude-plugin/",
+    "commands/",
+    "scripting/",
+    "systems/",
+    "frameworks/",
+    "config/",
+    "compatibility/",
+    "scripts/",
+    "SKILL.md",
+    "DAYZ_CURSOR_RULES.md",
+    "README.md"
+  ],
+  "scripts": {
+    "postinstall": "node scripts/install.js"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  }
+}

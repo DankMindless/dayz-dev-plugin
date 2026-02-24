@@ -2,7 +2,7 @@
 
 A comprehensive plugin for DayZ mod development with Enforce Script. Provides dynamic documentation fetching, framework support for vanilla, Community Framework, and DayZ Expansion.
 
-**Supports:** Claude Code, Cursor, Windsurf, and other AI coding assistants.
+**Supports:** Claude Code, Gemini Code Assist, Cursor, Windsurf, and other AI coding assistants.
 **Target Version:** DayZ 1.28+ (v1.28.161464)
 
 ## Features
@@ -25,7 +25,18 @@ npm install -g claude-dayz-dev
 ### Claude Code (Git)
 
 ```bash
-git clone https://github.com/chaos/dayz-dev-plugin.git ~/.claude/skills/dayz-dev
+git clone https://github.com/DankMindless/dayz-dev-plugin.git ~/.claude/skills/dayz-dev
+```
+
+### Gemini Code Assist
+
+1. Copy the `.gemini/` directory to your DayZ mod project root
+2. Copy the knowledge files (`scripting/`, `systems/`, `frameworks/`, `config/`, `compatibility/`) alongside it
+3. Gemini Code Assist automatically loads `.gemini/GEMINI.md` as project context
+
+```bash
+git clone https://github.com/DankMindless/dayz-dev-plugin.git /tmp/dayz-dev
+cp -r /tmp/dayz-dev/.gemini /tmp/dayz-dev/scripting /tmp/dayz-dev/systems /tmp/dayz-dev/frameworks /tmp/dayz-dev/config /tmp/dayz-dev/compatibility your-project/
 ```
 
 ### Cursor / Windsurf
@@ -34,7 +45,7 @@ git clone https://github.com/chaos/dayz-dev-plugin.git ~/.claude/skills/dayz-dev
 2. Copy to your DayZ mod project root as `.cursorrules`
 
 ```bash
-curl -o .cursorrules https://raw.githubusercontent.com/chaos/dayz-dev-plugin/main/DAYZ_CURSOR_RULES.md
+curl -o .cursorrules https://raw.githubusercontent.com/DankMindless/dayz-dev-plugin/main/DAYZ_CURSOR_RULES.md
 ```
 
 ### Manual
@@ -84,6 +95,7 @@ Use the `/dayz-dev` command for direct queries:
 | Directory | Contents |
 |-----------|----------|
 | `SKILL.md` | Main orchestrator with decision tree and verification rules |
+| `.gemini/` | Gemini Code Assist context files (GEMINI.md, styleguide.md) |
 | `scripting/` | Enforce Script language, class hierarchy, client-server, memory management |
 | `systems/` | Mod structure, networking, inventory, actions, weapons, vehicles |
 | `frameworks/` | Framework detection, Community Framework, Expansion |

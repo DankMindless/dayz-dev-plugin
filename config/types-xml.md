@@ -5,12 +5,12 @@
 ```xml
 <type name="ItemClassName">
     <nominal>10</nominal>          <!-- Target count on map -->
-    <lifetime>14400</lifetime>     <!-- Seconds before cleanup (0 = infinite) -->
+    <lifetime>14400</lifetime>     <!-- Seconds before cleanup (0 = IMMEDIATE despawn, NOT infinite!) -->
     <restock>1800</restock>        <!-- Seconds between restock checks -->
     <min>5</min>                   <!-- Minimum count before restock -->
     <quantmin>-1</quantmin>        <!-- Min quantity (-1 = default) -->
     <quantmax>-1</quantmax>        <!-- Max quantity (-1 = default) -->
-    <cost>100</cost>               <!-- Priority cost (higher = rarer) -->
+    <cost>100</cost>               <!-- Spawn priority weight (higher = spawns first, more common) -->
     <flags count_in_cargo="0" count_in_hoarder="0" count_in_map="1" count_in_player="0" crafted="0" deloot="0"/>
     <category name="tools"/>       <!-- Spawn category -->
     <usage name="Town"/>           <!-- Where it spawns (Town, Village, Military, etc.) -->
@@ -25,24 +25,37 @@
 
 | Parameter | Description | Range |
 |-----------|-------------|-------|
-| `nominal` | Target count on map | 0-9999 |
-| `lifetime` | Seconds before despawn | 0 = never |
-| `restock` | Seconds between restocks | 0 = instant |
-| `min` | Minimum before restock triggers | 0-nominal |
-| `quantmin` | Min quantity % | -1 (default), 0-100 |
-| `quantmax` | Max quantity % | -1 (default), 0-100 |
-| `cost` | Spawn priority (higher = rarer) | 0-999 |
+| `nominal` | Target count CE maintains on map | 0-9999 |
+| `lifetime` | Seconds before despawn (**0 = immediate despawn**, use 3888000 for ~45 days) | 0+ seconds |
+| `restock` | Min seconds after pickup before CE can respawn replacement | 0 = immediate |
+| `min` | Emergency threshold triggering prioritized spawning | 0-nominal (typically 50% of nominal) |
+| `quantmin` | Min quantity % for stackable items | -1 (default/non-stackable), 0-100 |
+| `quantmax` | Max quantity % for stackable items | -1 (default/non-stackable), 0-100 |
+| `cost` | Spawn priority weight (higher = spawns first when competing for spawn points) | 0-999 |
+
+### Common Lifetime Values
+| Value | Duration | Use Case |
+|-------|----------|----------|
+| 3600 | 1 hour | Common disposable items |
+| 7200 | 2 hours | Standard items |
+| 14400 | 4 hours | Standard items (vanilla default) |
+| 604800 | 7 days | Building materials, storage |
+| 3888000 | 45 days | Long-term persistence |
+
+**WARNING:** `lifetime=0` means **immediate despawn**, NOT permanent. This is a common misconception.
 
 ## Flags
 
-| Flag | Description |
-|------|-------------|
-| `count_in_cargo` | Count items inside containers |
-| `count_in_hoarder` | Count items in player storage |
-| `count_in_map` | Count items on ground/buildings |
-| `count_in_player` | Count items in player inventory |
-| `crafted` | Is a crafted item |
-| `deloot` | Dynamic event loot (helicrash etc.) |
+| Flag | Description | Typical |
+|------|-------------|---------|
+| `count_in_cargo` | Count items inside containers (backpacks, crates, vehicles) toward nominal | 0 |
+| `count_in_hoarder` | Count items in player-placed storage (tents, barrels, buried stashes) toward nominal | 0 or 1 for rare items |
+| `count_in_map` | Count items on ground/in buildings toward nominal (**should always be 1**) | 1 |
+| `count_in_player` | Count items in player inventory toward nominal | 0 (1 for very rare items) |
+| `crafted` | Item is crafted only, never spawns naturally via CE | 0 |
+| `deloot` | Dynamic event loot only (helicrashes, wrecks) - never spawns in buildings | 0 |
+
+**Note:** Enabling `count_in_player` and `count_in_hoarder` on populated servers can starve spawns since hoarded items count against the nominal limit.
 
 ## Usage Tags (Where Items Spawn)
 
@@ -72,6 +85,47 @@
 | `Tier2` | Inland areas |
 | `Tier3` | Northwest/military areas |
 | `Tier4` | High-value areas |
+
+## How the Central Economy (CE) Spawn Cycle Works
+
+The CE runs in cycles (typically every 5 minutes):
+
+1. Checks if item count is below `nominal` threshold in types.xml
+2. Reads `cfglimitsdefinition.xml` to identify matching spawn points for `category`/`usage`/`value` tags
+3. Locates empty spawn points away from players (~100-200m radius)
+4. Consults `cfgspawnabletypes.xml` for attachment/cargo rules
+5. Spawns item with configured modifications
+
+**Why items may not spawn:**
+- `nominal` already reached (including hoarded items if flags are set)
+- No valid spawn points match the `usage`/`value` tags
+- Player too close to spawn point
+- `restock` timer hasn't elapsed since last pickup
+- `lifetime` expired (untouched items despawn)
+
+## cfglimitsdefinition.xml (Spawn Point Mapping)
+
+Defines valid categories, usages, and values that types.xml references:
+```xml
+<lists>
+    <categories>
+        <category name="weapons"/>
+        <category name="food"/>
+        <category name="tools"/>
+        <category name="clothes"/>
+        <category name="containers"/>
+        <category name="magazines"/>
+        <category name="attachments"/>
+        <category name="vehiclesparts"/>
+    </categories>
+    <limits>
+        <limit name="weapons" value="200"/>
+        <!-- Category-wide limits as secondary constraint -->
+    </limits>
+</lists>
+```
+
+**Important:** Item `<category>`, `<usage>`, and `<value>` tags in types.xml MUST match entries defined in this file or the item will silently fail to spawn.
 
 ## cfgspawnabletypes.xml (1.28 Enhanced)
 

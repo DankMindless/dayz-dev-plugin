@@ -1,0 +1,20 @@
+{
+  "name": "dayzghost-dayz",
+  "interface": {
+    "displayName": "DayZGhost DayZ Dev"
+  },
+  "plugins": [
+    {
+      "name": "dayz-dev",
+      "source": {
+        "source": "local",
+        "path": "./plugins/dayz-dev"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Developer Tools"
+    }
+  ]
+}

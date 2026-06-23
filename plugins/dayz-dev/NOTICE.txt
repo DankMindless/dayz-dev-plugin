@@ -1,0 +1,19 @@
+DayZ Dev Codex adaptation
+
+This plugin derives its bundled DayZ reference material from:
+https://github.com/DayZGhost/dayz-dev-plugin
+
+Source revision:
+a6e39bedb4858e367a3163e38fa929bbd1c11ff5
+
+Adaptation date: 2026-06-22
+
+Changes include replacing Claude-specific orchestration with a Codex skill,
+reorganizing the knowledge files as progressively loaded references, and
+making a discovered installed DayZ script tree the primary source for API
+verification. Codex packaging was contributed by JustWats; authorship of the
+underlying project and reference material remains with the upstream
+DayZGhost contributors.
+
+The upstream project and this adaptation are distributed under GPL-3.0. See
+LICENSE.txt for the license terms.

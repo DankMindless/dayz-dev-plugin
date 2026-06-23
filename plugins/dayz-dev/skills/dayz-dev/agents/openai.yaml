@@ -1,0 +1,7 @@
+interface:
+  display_name: "DayZ Dev"
+  short_description: "Verified DayZ Enforce Script development"
+  default_prompt: "Use $dayz-dev to review this DayZ mod against discovered local scripts and current documentation."
+
+policy:
+  allow_implicit_invocation: true

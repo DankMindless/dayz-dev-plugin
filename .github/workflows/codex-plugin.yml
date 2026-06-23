@@ -1,0 +1,31 @@
+name: Codex plugin
+
+on:
+  push:
+    branches: [main, "codex/**"]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Validate marketplace and plugin
+        run: python scripts/validate-codex-plugin.py
+      - name: Check synchronized references
+        run: python scripts/sync-codex-references.py --check
+      - name: Test source discovery
+        run: python -m unittest discover -s tests -v
+      - name: Package plugin
+        run: python scripts/package-codex-plugin.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dayz-dev-codex
+          path: dist/*
+          if-no-files-found: error

@@ -1,0 +1,39 @@
+{
+  "name": "dayz-dev",
+  "version": "0.1.0",
+  "description": "Develop and review DayZ mods with verified local Enforce Script APIs and version-aware documentation.",
+  "author": {
+    "name": "DayZGhost contributors",
+    "url": "https://github.com/DayZGhost/dayz-dev-plugin"
+  },
+  "homepage": "https://github.com/DayZGhost/dayz-dev-plugin",
+  "repository": "https://github.com/DayZGhost/dayz-dev-plugin",
+  "license": "GPL-3.0",
+  "keywords": [
+    "dayz",
+    "enforce-script",
+    "modding",
+    "bohemia-interactive",
+    "community-framework",
+    "dayz-expansion"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "DayZ Dev",
+    "shortDescription": "Verified DayZ Enforce Script development",
+    "longDescription": "Review, explain, and edit DayZ Enforce Script and configuration using the installed DayZ source tree first, then current authoritative documentation when local evidence is insufficient.",
+    "developerName": "DayZGhost contributors",
+    "category": "Developer Tools",
+    "capabilities": [
+      "Interactive",
+      "Read",
+      "Write"
+    ],
+    "websiteURL": "https://github.com/DayZGhost/dayz-dev-plugin",
+    "defaultPrompt": [
+      "Review this DayZ mod for Enforce Script API mistakes",
+      "Find the correct DayZ class or method for this feature",
+      "Create a safe DayZ mod pattern for this system"
+    ]
+  }
+}

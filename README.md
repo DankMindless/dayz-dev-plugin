@@ -2,7 +2,7 @@
 
 A comprehensive plugin for DayZ mod development with Enforce Script. Provides dynamic documentation fetching, framework support for vanilla, Community Framework, and DayZ Expansion.
 
-**Supports:** Claude Code, Gemini Code Assist, Cursor, Windsurf, and other AI coding assistants.
+**Supports:** Codex, Claude Code, Gemini Code Assist, Cursor, Windsurf, and other AI coding assistants.
 **Target Version:** DayZ 1.28+ (v1.28.161464)
 
 ## Features
@@ -15,6 +15,23 @@ A comprehensive plugin for DayZ mod development with Enforce Script. Provides dy
 - **Best Practices** - Null safety, server/client context, memory management, performance patterns
 
 ## Installation
+
+### Codex
+
+Install the public marketplace from the default branch:
+
+```powershell
+codex plugin marketplace add DayZGhost/dayz-dev-plugin --ref main
+codex plugin add dayz-dev@dayzghost-dayz
+```
+
+For a reproducible install, replace `main` with a release tag such as `v0.1.0`.
+Set `DAYZ_SOURCE_ROOT` to the directory containing `scripts/1_core`,
+`scripts/3_game`, and `scripts/4_world` when the source is not in the current
+workspace or its ancestors and is not mapped to `P:\`.
+
+See [CODEX.md](CODEX.md) for configuration, upgrades, troubleshooting, privacy,
+source-discovery behavior, and attribution.
 
 ### Claude Code (NPM)
 
@@ -102,6 +119,7 @@ Use the `/dayz-dev` command for direct queries:
 | `config/` | config.cpp, types.xml, server configuration |
 | `compatibility/` | Version 1.28 breaking changes and migration guide |
 | `commands/` | `/dayz-dev` slash command template |
+| `plugins/dayz-dev/` | Self-contained Codex marketplace plugin |
 
 ## What's Covered
 
@@ -147,9 +165,11 @@ Use the `/dayz-dev` command for direct queries:
 
 ## License
 
-MIT License - Feel free to use and modify.
+GNU General Public License v3.0. See [LICENSE](LICENSE).
 
 ## Credits
+
+- DayZGhost contributors - upstream DayZ development plugin and bundled reference material
 
 - Bohemia Interactive - DayZ, Enforce Script, official documentation
 - TrueDolphin - [EnScript Style Guide](https://github.com/TrueDolphin/references/wiki/EnScript-(Enforce-Script)-Style-Guide) - Naming conventions, memory management patterns, common pitfalls
